@@ -14,10 +14,9 @@ ESTADOS_NOVEDAD = ["Pendiente", "En trámite", "Con novedades", "Resuelto", "Rec
 
 
 def _db():
-    import base64
-    creds_b64 = os.environ.get("GOOGLE_CREDENTIALS_B64")
-    if creds_b64:
-        creds_dict = json.loads(base64.b64decode(creds_b64).decode("utf-8"))
+    creds_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+    if creds_json:
+        creds_dict = json.loads(creds_json)
         credentials = service_account.Credentials.from_service_account_info(
             creds_dict,
             scopes=["https://www.googleapis.com/auth/cloud-platform"],
