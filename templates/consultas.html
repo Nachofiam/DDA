@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="fw-bold mb-0">Últimas consultas</h4>
+  <div class="d-flex gap-2">
+    <a href="/consultas?n=20"  class="btn btn-sm {{ 'btn-primary' if n==20  else 'btn-outline-secondary' }}">20</a>
+    <a href="/consultas?n=50"  class="btn btn-sm {{ 'btn-primary' if n==50  else 'btn-outline-secondary' }}">50</a>
+    <a href="/consultas?n=100" class="btn btn-sm {{ 'btn-primary' if n==100 else 'btn-outline-secondary' }}">100</a>
+  </div>
+</div>
+
+{% if not consultas %}
+  <div class="alert alert-info">No hay consultas registradas.</div>
+{% else %}
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Fecha</th>
+            <th>DNI</th>
+            <th>Nombre</th>
+            <th>Canal</th>
+            <th>Motivo</th>
+            <th>Notas</th>
+            <th class="text-center">Resuelto</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in consultas %}
+          <tr>
+            <td class="text-nowrap text-muted small">
+              {% if c.fecha_consulta %}
+                {{ c.fecha_consulta.strftime('%d/%m/%Y %H:%M') }}
+              {% else %}—{% endif %}
+            </td>
+            <td>{{ c.dni or '—' }}</td>
+            <td>{{ c.nombre or '—' }}</td>
+            <td><span class="badge text-bg-secondary">{{ c.canal or '—' }}</span></td>
+            <td>{{ c.motivo or '' }}</td>
+            <td class="text-muted small">{{ c.notas or '' }}</td>
+            <td class="text-center">
+              {% if c.resuelto %}<span class="text-success">✓</span>
+              {% else %}<span class="text-muted">–</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

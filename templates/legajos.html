@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="fw-bold mb-0">Legajos digitales</h4>
+  <a href="/buscar" class="btn btn-primary btn-sm">+ Nuevo legajo</a>
+</div>
+
+{% if not legajos %}
+  <div class="alert alert-info">No hay legajos creados todavía.</div>
+{% else %}
+<div class="row g-2 mb-3">
+  <div class="col-sm-5">
+    <input type="text" id="filtro-nombre" class="form-control" placeholder="Buscar por nombre...">
+  </div>
+  <div class="col-sm-3">
+    <input type="text" id="filtro-dni" class="form-control" placeholder="Buscar por DNI...">
+  </div>
+  <div class="col-sm-auto">
+    <select id="filtro-deuda" class="form-select">
+      <option value="">Deuda: todos</option>
+      <option value="debe">Con deuda</option>
+      <option value="al_dia">Al día</option>
+    </select>
+  </div>
+</div>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Nombre</th>
+          <th>DNI</th>
+          <th>Estado</th>
+          <th>Última novedad</th>
+          <th>Fecha novedad</th>
+          <th>Deuda</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for l in legajos %}
+        <tr>
+          <td>{{ l.nombre or '—' }}</td>
+          <td class="text-muted">{{ l.dni }}</td>
+          <td>
+            <span class="badge
+              {% if l.estado == 'Resuelto' %}text-bg-success
+              {% elif l.estado == 'En trámite' %}text-bg-warning
+              {% elif l.estado == 'Rechazado' %}text-bg-danger
+              {% elif l.estado == 'Con resolución' %}text-bg-info
+              {% else %}text-bg-secondary{% endif %}">
+              {{ l.estado or '—' }}
+            </span>
+          </td>
+          <td class="small">{{ l.ultima_novedad or '—' }}</td>
+          <td class="text-muted small">
+            {{ l.ultima_novedad_fecha.strftime('%d/%m/%Y') if l.ultima_novedad_fecha else '—' }}
+          </td>
+          <td>
+            {% if l.deuda > 0 %}
+              <span class="badge text-bg-danger">$ {{ "%.2f"|format(l.deuda) }}</span>
+            {% else %}
+              <span class="badge text-bg-success">Al día</span>
+            {% endif %}
+          </td>
+          <td>
+            <a href="/legajo/{{ l.dni }}" class="btn btn-sm btn-outline-primary">Abrir</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<script>
+  const filtroNombre = document.getElementById('filtro-nombre');
+  const filtroDni = document.getElementById('filtro-dni');
+  const filtroDeuda = document.getElementById('filtro-deuda');
+  const filas = document.querySelectorAll('tbody tr');
+
+  function filtrar() {
+    const nombre = filtroNombre.value.toLowerCase();
+    const dni = filtroDni.value.toLowerCase();
+    const deuda = filtroDeuda.value;
+    filas.forEach(fila => {
+      const celdas = fila.querySelectorAll('td');
+      const matchNombre = celdas[0].textContent.toLowerCase().includes(nombre);
+      const matchDni = celdas[1].textContent.toLowerCase().includes(dni);
+      const esDeudor = celdas[5].textContent.trim().startsWith('$');
+      const matchDeuda = deuda === '' || (deuda === 'debe' && esDeudor) || (deuda === 'al_dia' && !esDeudor);
+      fila.style.display = matchNombre && matchDni && matchDeuda ? '' : 'none';
+    });
+  }
+
+  filtroNombre.addEventListener('input', filtrar);
+  filtroDni.addEventListener('input', filtrar);
+  filtroDeuda.addEventListener('change', filtrar);
+</script>
+{% endblock %}

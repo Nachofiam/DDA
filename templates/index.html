@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+  <div class="col-md-6 text-center">
+    <img src="{{ url_for('static', filename='logo.png') }}" height="48" alt="Logo" class="mb-3">
+    <h1 class="mb-2 fw-bold">Sistema DDA</h1>
+    <p class="text-muted mb-5">Gestión de consultas por DNI</p>
+    <div class="row g-3 justify-content-center">
+      <div class="col-sm-5">
+        <a href="/buscar" class="card p-4 text-decoration-none text-dark d-block h-100">
+          <div class="fs-1 mb-2">🔍</div>
+          <div class="fw-semibold">Buscar DNI</div>
+          <small class="text-muted">Ver resoluciones de una persona</small>
+        </a>
+      </div>
+      <div class="col-sm-5">
+        <a href="/legajos" class="card p-4 text-decoration-none text-dark d-block h-100">
+          <div class="fs-1 mb-2">📁</div>
+          <div class="fw-semibold">Ver legajos</div>
+          <small class="text-muted">Listado de todos los legajos existentes</small>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if legajos %}
+<div class="mt-5">
+  <h5 class="fw-bold mb-3">Legajos</h5>
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Nombre</th>
+            <th>DNI</th>
+            <th>Estado</th>
+            <th>Última novedad</th>
+            <th>Fecha novedad</th>
+            <th>Deuda</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for l in legajos %}
+          <tr>
+            <td>{{ l.nombre or '—' }}</td>
+            <td class="text-muted">{{ l.dni }}</td>
+            <td>
+              <span class="badge
+                {% if l.estado == 'Resuelto' %}text-bg-success
+                {% elif l.estado == 'En trámite' %}text-bg-warning
+                {% elif l.estado == 'Rechazado' %}text-bg-danger
+                {% elif l.estado == 'Con resolución' %}text-bg-info
+                {% else %}text-bg-secondary{% endif %}">
+                {{ l.estado or '—' }}
+              </span>
+            </td>
+            <td class="small">{{ l.ultima_novedad or '—' }}</td>
+            <td class="text-muted small">
+              {{ l.ultima_novedad_fecha.strftime('%d/%m/%Y') if l.ultima_novedad_fecha else '—' }}
+            </td>
+            <td>
+              {% if l.deuda > 0 %}
+                <span class="badge text-bg-danger">$ {{ "%.2f"|format(l.deuda) }}</span>
+              {% else %}
+                <span class="badge text-bg-success">Al día</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="/legajo/{{ l.dni }}" class="btn btn-sm btn-outline-primary">Abrir</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

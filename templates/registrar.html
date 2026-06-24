@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card p-4">
+      <h4 class="fw-bold mb-4">Registrar consulta</h4>
+
+      <!-- Paso 1: buscar DNI -->
+      <form method="POST">
+        <input type="hidden" name="accion" value="buscar">
+        <label class="form-label fw-semibold">DNI del consultante</label>
+        <div class="input-group mb-3">
+          <input type="text" name="dni" class="form-control" placeholder="Ej: 12345678"
+                 value="{{ dni }}" required>
+          <button class="btn btn-outline-primary" type="submit">Buscar</button>
+        </div>
+      </form>
+
+      {% if resultado is not none %}
+        {% if not resultado.encontrado %}
+          <div class="alert alert-warning">
+            DNI <strong>{{ dni }}</strong> no encontrado — se registrará sin nombre.
+          </div>
+        {% else %}
+          <div class="alert alert-success py-2">
+            <strong>{{ resultado.nombre }}</strong> — {{ resultado.resoluciones | length }} resolución/es encontrada/s.
+          </div>
+        {% endif %}
+
+        <!-- Paso 2: completar y confirmar -->
+        <form method="POST">
+          <input type="hidden" name="accion" value="confirmar">
+          <input type="hidden" name="dni" value="{{ dni }}">
+
+          <div class="mb-3">
+            <label class="form-label">Canal</label>
+            <select name="canal" class="form-select">
+              <option value="whatsapp">WhatsApp</option>
+              <option value="email">Email</option>
+              <option value="presencial">Presencial</option>
+              <option value="telefono">Teléfono</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Motivo</label>
+            <input type="text" name="motivo" class="form-control" placeholder="Descripción breve">
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">Notas internas</label>
+            <textarea name="notas" class="form-control" rows="2" placeholder="Opcional"></textarea>
+          </div>
+
+          <button class="btn btn-primary w-100" type="submit">Confirmar y registrar</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
