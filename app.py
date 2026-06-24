@@ -1,3 +1,4 @@
+import os
 from datetime import date
 from flask import Flask, render_template, request, redirect, url_for, flash
 from dda import buscar_por_dni
@@ -11,6 +12,7 @@ from legajos import (
 )
 
 app = Flask(__name__)
+
 app.secret_key = "dda-secret-2026"
 
 
@@ -140,4 +142,4 @@ def legajo(dni):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+ app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
