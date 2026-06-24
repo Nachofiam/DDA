@@ -1,3 +1,5 @@
+import json
+import os
 import uuid
 from datetime import datetime, timezone
 from google.cloud import firestore
@@ -12,10 +14,18 @@ ESTADOS_NOVEDAD = ["Pendiente", "En trámite", "Con novedades", "Resuelto", "Rec
 
 
 def _db():
-    credentials = service_account.Credentials.from_service_account_file(
-        CREDS_FILE,
-        scopes=["https://www.googleapis.com/auth/cloud-platform"],
-    )
+    creds_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+    if creds_json:
+        creds_dict = json.loads(creds_json)
+        credentials = service_account.Credentials.from_service_account_info(
+            creds_dict,
+            scopes=["https://www.googleapis.com/auth/cloud-platform"],
+        )
+    else:
+        credentials = service_account.Credentials.from_service_account_file(
+            CREDS_FILE,
+            scopes=["https://www.googleapis.com/auth/cloud-platform"],
+        )
     return firestore.Client(project=PROJECT, credentials=credentials, database="dda-firestore")
 
 
